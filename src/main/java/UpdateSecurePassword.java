@@ -21,7 +21,6 @@ public class UpdateSecurePassword {
      * 
      */
     public static void main(String[] args) throws Exception {
-
         String loginUser = "mytestuser";
         String loginPasswd = "My6$Password";
         String loginUrl = "jdbc:mysql://localhost:3306/moviedb";
@@ -29,16 +28,28 @@ public class UpdateSecurePassword {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connection = DriverManager.getConnection(loginUrl, loginUser, loginPasswd);
         Statement statement = connection.createStatement();
+        System.out.println("Connected to database");
 
         // change the customers table password column from VARCHAR(20) to VARCHAR(128)
-        String alterQuery = "ALTER TABLE customers MODIFY COLUMN password VARCHAR(128)";
+        String alterQuery = "ALTER TABLE employees MODIFY COLUMN password VARCHAR(128);";
+//        String alterQuery = "ALTER TABLE customers MODIFY COLUMN password VARCHAR(128);";
         int alterResult = statement.executeUpdate(alterQuery);
-        System.out.println("altering customers table schema completed, " + alterResult + " rows affected");
+        System.out.println("altering employees table schema completed, " + alterResult + " rows affected");
+
+        String insert = "insert into employees values (\"classta@email.edu\", \"classta\", \"TA CS122B\") ;";
+        int insertresult = statement.executeUpdate(insert);
+
+//        System.out.println("altering employees table schema completed, " + insertresult + " rows affected");
 
         // get the ID and password for each customer
-        String query = "SELECT id, password from customers";
+        String query = "SELECT * from employees";
+//        String query = "SELECT * from customers";
 
         ResultSet rs = statement.executeQuery(query);
+        if (!rs.isBeforeFirst()) {
+            System.out.println("ResultSet is empty!");
+        }
+
 
         // we use the StrongPasswordEncryptor from jasypt library (Java Simplified Encryption) 
         //  it internally use SHA-256 algorithm and 10,000 iterations to calculate the encrypted password
@@ -47,17 +58,21 @@ public class UpdateSecurePassword {
         ArrayList<String> updateQueryList = new ArrayList<>();
 
         System.out.println("encrypting password (this might take a while)");
+        System.out.println(rs.getMetaData());
         while (rs.next()) {
+            System.out.println(rs.getMetaData());
             // get the ID and plain text password from current table
-            String id = rs.getString("id");
+            String id = rs.getString("email");
             String password = rs.getString("password");
             
             // encrypt the password using StrongPasswordEncryptor
             String encryptedPassword = passwordEncryptor.encryptPassword(password);
 
             // generate the update query
-            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE id=%s;", encryptedPassword,
+            String updateQuery = String.format("UPDATE employees SET password='%s' WHERE email='%s';", encryptedPassword,
                     id);
+//            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE email='%s';", encryptedPassword,
+//                    id);
             updateQueryList.add(updateQuery);
         }
         rs.close();
