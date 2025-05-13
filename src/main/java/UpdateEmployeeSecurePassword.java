@@ -1,13 +1,13 @@
+import org.jasypt.util.password.PasswordEncryptor;
+import org.jasypt.util.password.StrongPasswordEncryptor;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
-
-public class UpdateSecurePassword {
+public class UpdateEmployeeSecurePassword {
 
     /*
      * 
@@ -31,19 +31,19 @@ public class UpdateSecurePassword {
         System.out.println("Connected to database");
 
         // change the customers table password column from VARCHAR(20) to VARCHAR(128)
-//        String alterQuery = "ALTER TABLE employees MODIFY COLUMN password VARCHAR(128);";
-        String alterQuery = "ALTER TABLE customers MODIFY COLUMN password VARCHAR(128);";
+        String alterQuery = "ALTER TABLE employees MODIFY COLUMN password VARCHAR(128);";
+//        String alterQuery = "ALTER TABLE customers MODIFY COLUMN password VARCHAR(128);";
         int alterResult = statement.executeUpdate(alterQuery);
         System.out.println("altering employees table schema completed, " + alterResult + " rows affected");
 
-//        String insert = "insert into employees values (\"classta@email.edu\", \"classta\", \"TA CS122B\") ;";
-//        int insertresult = statement.executeUpdate(insert);
+        String insert = "insert into employees values (\"classta@email.edu\", \"classta\", \"TA CS122B\") ;";
+        int insertresult = statement.executeUpdate(insert);
 
 //        System.out.println("altering employees table schema completed, " + insertresult + " rows affected");
 
         // get the ID and password for each customer
-//        String query = "SELECT * from employees";
-        String query = "SELECT * from customers";
+        String query = "SELECT * from employees";
+//        String query = "SELECT * from customers";
 
         ResultSet rs = statement.executeQuery(query);
         if (!rs.isBeforeFirst()) {
@@ -62,17 +62,17 @@ public class UpdateSecurePassword {
         while (rs.next()) {
             System.out.println(rs.getMetaData());
             // get the ID and plain text password from current table
-            String id = rs.getString("id");
+            String id = rs.getString("email");
             String password = rs.getString("password");
             
             // encrypt the password using StrongPasswordEncryptor
             String encryptedPassword = passwordEncryptor.encryptPassword(password);
 
             // generate the update query
-//            String updateQuery = String.format("UPDATE employees SET password='%s' WHERE email='%s';", encryptedPassword,
-//                    id);
-            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE email='%s';", encryptedPassword,
+            String updateQuery = String.format("UPDATE employees SET password='%s' WHERE email='%s';", encryptedPassword,
                     id);
+//            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE email='%s';", encryptedPassword,
+//                    id);
             updateQueryList.add(updateQuery);
         }
         rs.close();
