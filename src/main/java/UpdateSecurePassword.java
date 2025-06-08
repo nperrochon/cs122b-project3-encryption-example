@@ -72,7 +72,7 @@ public class UpdateSecurePassword {
             // generate the update query
 //            String updateQuery = String.format("UPDATE employees SET password='%s' WHERE email='%s';", encryptedPassword,
 //                    id);
-            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE email='%s';", encryptedPassword,
+            String updateQuery = String.format("UPDATE customers SET password='%s' WHERE id='%s';", encryptedPassword,
                     id);
             updateQueryList.add(updateQuery);
         }
